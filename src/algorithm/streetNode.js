@@ -1,20 +1,18 @@
-var streetNode = require("./json/streetDataSource.json");
-var fs = require("fs");
-var graph = require("./graph.js");
-var streetData = streetNode.data;
+import { streetData } from '../cache/streetDataSource.json';
+import fs from 'fs';
+import graph from './graph';
 // const __apiKey__ = AIzaSyC9FPqo6Pdx4VjALRx5oeEDhfQvb-fkDjE
-var request = require('request');
 
 function createStreetNode(data) {
   // console.log(new Date(), "this is the start.")
-  var streetGraph = new graph();
+  const streetGraph = new graph();
 
-  for(var i = 0; i < data.length; i++){
-    var cnn;
-    var intersection1 = [];
-    var intersection2 = [];
+  for (let i = 0; i < data.length; i++) {
+    let cnn;
+    const intersection1 = [];
+    const intersection2 = [];
 
-    if(!(data[i][21]) && !(data[i][22])){
+    if (!(data[i][21]) && !(data[i][22])) {
       cnn = data[i][8];
       intersection1.push(data[i][9]);
       intersection1.push(data[i][10]);
@@ -23,7 +21,7 @@ function createStreetNode(data) {
       streetGraph.addNode(intersection1, intersection2, cnn);
     }
 
-    if(data[i][21] && data[i][22]){
+    if (data[i][21] && data[i][22]) {
       streetGraph.addEdge(data[i][21], data[i][22]);
     }
   }
@@ -32,39 +30,39 @@ function createStreetNode(data) {
 }
 
 
-var streetGraph = createStreetNode(streetData);
+const streetGraph = createStreetNode(streetData);
 
 // createStreetEdges(streetData);
 
-//grab the instersection object and store in a variable
-var cnnGraph = streetGraph.getCnnObject();
-var intersectionsGraph = streetGraph.getIntersectionsObject();
+// grab the instersection object and store in a variable
+const cnnGraph = streetGraph.getCnnObject();
+const intersectionsGraph = streetGraph.getIntersectionsObject();
 // console.log(cnnGraph, ' this is the json graph')
 
 // write to the json file and add the instersection object
 storeCnnObject(cnnGraph);
 storeIntersectionObject(intersectionsGraph);
 
-function storeCnnObject(json){
-    var str = JSON.stringify(json);
+function storeCnnObject(json) {
+  const str = JSON.stringify(json);
     // console.log(str, ' this is the json str')
-    fs.writeFile("./json/cnnObject.json", str, function(err) {
-    if(err) {
-        return console.log(err);
+  fs.writeFile('./json/cnnObject.json', str, (err) => {
+    if (err) {
+      return console.log(err);
     }
-        console.log("The CNN Object was saved!");
-    });
+    console.log('The CNN Object was saved!');
+  });
 }
 
-function storeIntersectionObject(json){
-    var str = JSON.stringify(json);
+function storeIntersectionObject(json) {
+  const str = JSON.stringify(json);
 
-    fs.writeFile("./json/intersectionsObject.json", str, function(err){
-      if(err) {
-        return console.log(err);
-      }
-      console.log("The Intersection Object was saved!");
-    });
+  fs.writeFile('./json/intersectionsObject.json', str, (err) => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log('The Intersection Object was saved!');
+  });
 }
 
 
@@ -101,7 +99,6 @@ module.exports = streetGraph;
 //   });
 //   return p;
 // }
-
 
 
 // var latLng;
