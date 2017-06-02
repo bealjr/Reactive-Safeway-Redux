@@ -6,6 +6,8 @@ import PriorityQueue from './priorityQueue.js';
 
 //= =======================GRAB USER INPUT AND GETS CNN=======================================================
 export default async function userInput(origin, destination) {
+  //function userInput takes an origin intersection and destination intersection, formats those intersections into strings
+  //that the algorithm can read and calls Djikstra's search algorithm using the formatted values.
 
   if (origin.indexOf('  \\ ') !== -1) {
     origin = fixSlashes(origin);
@@ -16,10 +18,10 @@ export default async function userInput(origin, destination) {
   origin = origin.split(', ').join(',').toUpperCase();
   destination = destination.split(', ').join(',').toUpperCase();
 
-  console.log(origin, destination, "this is our origin and destination.")
   let originCNN;
   let destinationCNN
 
+  //The following control flow statements check out
   if(intersectionsObject[origin] !== undefined){
     console.log("WE MADE IT HERE")
     originCNN = intersectionsObject[origin];
@@ -34,7 +36,7 @@ export default async function userInput(origin, destination) {
   }
 
   if(intersectionsObject[destination] !== undefined){
-    console.log("WE MADE IT HERE")
+    console.log("DESTINATION CNN", intersectionsObject[destination])
     destinationCNN = intersectionsObject[destination];
   }else{
     const intersection1 = destination.split(',')[0]
@@ -51,9 +53,8 @@ export default async function userInput(origin, destination) {
   const destinationNode = cnnObject[destinationCNN];
 	// console.log(destinationNode, "THIS IS THE DESTINATION NODE")
   const data = await getLatLng(destinationNode.intersection1)
-		.then((response) => {
-  const destinationLatLng = response;
-          console.log(destinationLatLng, "THIS IS destination LAT LNG")
+		.then((destinationLatLng) => {
+
   return dijkstraSearch(originNode, destinationNode, destinationLatLng, destinationCNN);
 })
 		.catch((err) => {
@@ -77,10 +78,12 @@ async function dijkstraSearch(sourceNode, destinationNode, destinationLatLng, de
     path: [],
   };
   frontier.enqueue(queueObj, queueObj.cost);
-	// Search until we're out of nodes
+
+	// Search until we're out of nodes.  We won't be out of nodes until we either find the node
+  // that we are looking for OR every single node in the graph has been checked.
   while (frontier.length > 0) {
     const currentQueueObj = frontier.dequeue();
-    
+
     const curNode = currentQueueObj.objeeee.node;
     const curPath = currentQueueObj.objeeee.path;
     const curCost = currentQueueObj.objeeee.cost;

@@ -3,8 +3,6 @@ import {connect} from 'react-redux';
 
 const RouteMap = ({route, input}) => {
     const API_KEY = 'AIzaSyB_bxE5lh7F4AjtnhzSkTgPUAdj4Qy7x8M';
-    let lat = 37.788442
-    let lng = -122.464519;
 
     if (route.length === 0) {
         return (
@@ -19,9 +17,7 @@ const RouteMap = ({route, input}) => {
     }
     const origin = input.origin.split(',').join(" and ")
     const destination = input.destination.split(',').join(" and ")
-
-    console.log(route, " this is our route")
-
+    console.log(route, `i'm the route!`)
     return (
         <iframe
             width="600"
@@ -33,4 +29,4 @@ const RouteMap = ({route, input}) => {
     );
 };
 
-    export default connect(({route, input}) => ({route, input}))(RouteMap);
+export default connect(({route, input}) => ({route, input}))(RouteMap);
