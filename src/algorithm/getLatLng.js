@@ -1,5 +1,4 @@
-
-const intersectionsObject = require('../cache/intersectionsObject.json');
+const intersectionsObject = require('./json/intersectionsObject.json');
 const request = require('request');
 const fs = require('fs');
 const apiPreCheckObject = require('../cache/apiPreCheckObject.json');
@@ -9,7 +8,7 @@ const cnnLatLngObj = require('../cache/latLngObject.json');
 
 // "18TH ST,CHURCH ST"
 
-export async function createCNNLatLngObject(json) {
+async function createCNNLatLngObject(json) {
   let cnn;
   let formatedIntersection;
   let counter = 0;
@@ -37,9 +36,9 @@ export async function createCNNLatLngObject(json) {
   }
 }
 
-createCNNLatLngObject(intersectionsObject);
+// createCNNLatLngObject(intersectionsObject);
 
-console.log(Object.keys(intersectionsObject).length);
+// console.log(Object.keys(intersectionsObject).length, "length");
 // createCNNLatLngObject(intersectionsObject);
 
 
@@ -66,7 +65,8 @@ function storeApiPreCheckObject(obj) {
 }
 
 
-export default function convertIntersectionLatLng(intersectionArray) {
+function convertIntersectionLatLng(intersectionArray) {
+    console.log("CONVERTING INTERSECTION")
   let firstStreet;
   let secondStreet;
 	// ["JAMESTOWN AVE","GILROY ST"],
@@ -85,16 +85,16 @@ export default function convertIntersectionLatLng(intersectionArray) {
 	// console.log("IDX " + slashIdx)
 	// console.log("2nd " + secondStreet)
   return p = new Promise((resolve, reject) => {
-    request(`https://maps.googleapis.com/maps/api/geocode/json?address=${firstStreet}+and+${secondStreet},+San+Francisco,+CA` + '&key=AIzaSyBAwGVTCAz-9xo-doBD6vUutQ9iasiB7kY', (error, response, body) => {
+    request(`https://maps.googleapis.com/maps/api/geocode/json?address=${firstStreet}+and+${secondStreet},+San+Francisco,+CA` + '&key=AIzaSyCx0LvEwPUgGhpLjCErr24dOnk-VWjo83g', (error, response, body) => {
       if (!error && response.statusCode == 200) {
         const parsed = JSON.parse(body);
-				// console.log(parsed, "***THIS IS THE PARSED THING***");
+				console.log(parsed, "***THIS IS THE PARSED THING***");
 				// console.log(parsed, 'this is the results')
         if (parsed.status === 'ZERO_RESULTS') {
 					// console.log('the ' + intersectionArray + ' does not exisits')
           resolve('no address exsists');
         } else {
-					// console.log('this intersction does exsisit ', parsed["results"][0]["geometry"]["location"])
+					console.log('this intersction does exsisit ', parsed["results"][0]["geometry"]["location"])
           resolve(parsed.results[0].geometry.location);
         }
 				// console.log(parsed["results"][0], " parsed ASDFASDFASDF", intersectionArray, "Intersection Array")
@@ -121,4 +121,7 @@ function fixSlashes(arr) {
 		// console.log(newStreet2, 'hereeeer newstreet2')
   return `${arr[0]},${newStreet2}`;
 }
-// console.log(fixSlashes);
+
+module.exports = {
+    createCNNLatLngObject, convertIntersectionLatLng
+}

@@ -1,11 +1,11 @@
-import PriorityQueue from './priorityQueue';
+const PriorityQueue = require('./priorityQueue');
 
 
 const cnnObject = {};
 const intersectionsObject = {};
 
 
-export function GraphEdge(first, second, weight, crimeType) {
+function GraphEdge(first, second, weight, crimeType) {
   this.first = first;
   this.second = second;
   this.weight = weight;
@@ -13,7 +13,7 @@ export function GraphEdge(first, second, weight, crimeType) {
 }
 
 
-export function GraphNode(intersection1, intersection2, cnn, latLng, streetEdges) {
+function GraphNode(intersection1, intersection2, cnn, latLng, streetEdges) {
   this.intersection1 = intersection1;
   this.intersection2 = intersection2;
   this.cnn = cnn;
@@ -22,7 +22,7 @@ export function GraphNode(intersection1, intersection2, cnn, latLng, streetEdges
 }
 
 // This represents an undirected Graph
-export default function Graph() {
+function Graph() {
   this.nodes = [];
   this.edges = [];
 
@@ -54,9 +54,9 @@ export default function Graph() {
   // Add an edge between 2 nodes and give it a weight
   this.addEdge = function (source, destination, weight = 1) {
     const first = this.findNode(source);
-	  const second = this.findNode(destination);
+	    const second = this.findNode(destination);
     if (first == null || second == null) {
-      return;
+        return;
     }
     const newEdge = new GraphEdge(source, destination, weight);
     this.edges.push(newEdge);
@@ -193,3 +193,5 @@ export default function Graph() {
     return sum;
   };
 }
+
+module.exports = {GraphEdge, GraphNode, Graph}

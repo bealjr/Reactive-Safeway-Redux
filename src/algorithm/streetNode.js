@@ -1,6 +1,6 @@
-import { streetData } from '../cache/streetDataSource.json';
-import fs from 'fs';
-import graph from './graph';
+const streetData = require('../cache/streetDataSource.json').data;
+const fs = require('fs');
+const graph = require('./graph').Graph;
 // const __apiKey__ = AIzaSyC9FPqo6Pdx4VjALRx5oeEDhfQvb-fkDjE
 
 function createStreetNode(data) {
@@ -26,6 +26,7 @@ function createStreetNode(data) {
     }
   }
   // console.log(new Date(), "this is the end.");
+  // console.log(streetGraph, "this is street Graph")
   return streetGraph;
 }
 

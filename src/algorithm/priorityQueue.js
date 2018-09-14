@@ -8,44 +8,106 @@
 // "weight":1,
 // "crimeType":{}
 // }]}
-import { GraphNode, GraphEdge } from './graph';
 
-function bubbleSort(arr) {
-  if (arr.length === 1) {
-    return arr;
-  }
-  for (let i = 0; i < arr.length - 1; i++) {
-    for (let j = 0; j < arr.length - 1 - i; j++) {
-      if (arr[j].cost > arr[j + 1].cost) {
-        const swap = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = swap;
-      }
+const GraphNode = require('./graph').GraphNode;
+const GraphEdge = require('./graph').GraphEdge;
+
+
+
+
+function bubbleSort(arr){
+    if(arr.length === 1){
+        return arr;
     }
-  }
-  return arr;
+    for(let i = 0; i < arr.length-1; i ++){
+        // console.log(arr[i], 'this is the arr before sort')
+        for(let j = 0; j < arr.length-1-i; j++){
+            var one = arr[j].cost
+            var two = arr[j+1].cost
+            // console.log(one, 'cost', two);
+            if(arr[j].cost> arr[j+1].cost){
+                var swap = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = swap;
+            }
+        }
+    }
+    // console.log(arr, 'this is after sort')
+    return arr
 }
 
-export default function PriorityQueue() {
-  this.pQueue = [];
-  this.length = 0;
+
+// //QuickSort Code
+// let countOuter = 0;
+// let countInner = 0;
+// let countSwap = 0;
+//
+// function resetCounters() {
+//   countOuter = 0;
+//   countInner = 0;
+//   countSwap = 0;
+// }
+// function QuickSort(array, left, right) {
+//   countOuter++;
+//   left = left || 0;
+//   right = right || array.length - 1;
+//
+//   const pivot = partitionHoare(array, left, right);
+//
+//   if(left < pivot - 1) {
+//     QuickSort(array, left, pivot - 1);
+//   }
+//   if(right > pivot) {
+//     QuickSort(array, pivot, right);
+//   }
+//   return array;
+// }
+//
+// // Hoare partition scheme... most efficient partition scheme for use in QuickSort.
+// function partitionHoare(array, left, right) {
+//   const pivot = Math.floor((left + right) / 2 );
+//
+//   while(left <= right) {
+//     countInner++;
+//     while(array[left] < array[pivot]) {
+//       left++;
+//     }
+//     while(array[right] > array[pivot]) {
+//       right--;
+//     }
+//     if(left <= right) {
+//       countSwap++;
+//       [array[left], array[right]] = [array[right], array[left]];
+//       left++;
+//       right--;
+//     }
+//   }
+//   return left;
+// }
+
+class PriorityQueue {
+    constructor(){
+        this.pQueue = [];
+        this.length = 0;
+    }
+
+    enqueue(obj, cost) {
+      const queueObj = { obj, cost };
+      this.pQueue.push(queueObj);
+      if (this.pQueue.length > 1) {
+        this.pQueue = bubbleSort(this.pQueue);
+      }
+      this.length ++;
+      return this.pQueue;
+    };
+
+    dequeue() {
+      const removed = this.pQueue.shift();
+      this.length --;
+      return removed;
+    };
 }
 
-PriorityQueue.prototype.enqueue = function (objeeee, cost) {
-  const holder = { objeeee, cost };
-  this.pQueue.push(holder);
-  if (this.pQueue.length > 1) {
-    this.pQueue = bubbleSort(this.pQueue);
-  }
-  this.length ++;
-  return this.pQueue;
-};
-
-PriorityQueue.prototype.dequeue = function () {
-  const removed = this.pQueue.shift();
-  this.length --;
-  return removed;
-};
 
 // This represents an undirected Graph
 function Graph() {
@@ -55,8 +117,9 @@ function Graph() {
   // Helper function to find a node in nodes
   this.findNode = (value) => {
     for (let i = 0; i < this.nodes.length; i++) {
-      if (this.nodes[i].value === value) {
-        return this.nodes[i];
+        const currentNode = this.nodes[i];
+      if (currentNode.value === value) {
+        return currentNode;
       }
     }
     return null;
@@ -112,7 +175,6 @@ function Graph() {
     return neighbors;
   };
 
-  // Stretch!
   // Find the optimal route from start to finish
   // Return each edge required to traverse the route
   // Remember that edges are not directional: A -> B also implies B -> A
@@ -125,35 +187,37 @@ function Graph() {
       cost: 0,
       path: [],
     };
-    frontier.push(queueObj);
+    frontier.enqueue(queueObj);
     // console.log(frontier)
 
     while (frontier.length > 0) {
-      const curr_node = frontier.shift();
-      const curr_path = curr_node.path;
-      const curr_cost = curr_node.cost;
-      const neigh = this.findNeighbors(curr_node.node);
-      if (curr_node.node === finish) {
-        return curr_path;
+      const currentQueueObj = frontier.dequeue();
+      const currentPath = currentQueueObj.path;
+      const currentCost = currentQueueObj.cost;
+
+      if (currentQueueObj.node === finish) {
+        return currentPath;
       }
 
-      if (visited.has(curr_node.node)) {
+      const currentNeighbors = this.findNeighbors(currentQueueObj.node);
+
+      if (visited.has(currentQueueObj.node)) {
         continue;
       }
 
-      for (let i = 0; i < neigh.length; i++) {
+      for (let i = 0; i < currentNeighbors.length; i++) {
         var new_node;
-        if (neigh[i].first.value !== curr_node) {
-          new_node = neigh[i].first.value;
+        if (currentNeighbors[i].first.value !== currentQueueObj) {
+          new_node = currentNeighbors[i].first.value;
         } else {
-          new_node = neigh[i].second.value;
+          new_node = currentNeighbors[i].second.value;
         }
-        const new_path = curr_path.slice();
-        new_path.push(neigh[i]);
-        const new_cost = neigh[i].weight;
-        const total_cost = new_cost + curr_cost;
-        frontier.push({ node: new_node, path: new_path, cost: total_cost });
-        visited.add(curr_node);
+        const new_path = currentPath.slice();
+        new_path.push(currentNeighbors[i]);
+        const new_cost = currentNeighbors[i].weight;
+        const total_cost = new_cost + currentCost;
+        frontier.enqueue({ node: new_node, path: new_path, cost: total_cost });
+        visited.add(currentQueueObj);
       }
     }
     return 10;
@@ -185,3 +249,5 @@ function Graph() {
     return sum;
   };
 }
+
+module.exports = { PriorityQueue: PriorityQueue};
