@@ -1,18 +1,27 @@
-const cnnObject = require('./json/cnnObjectWithCrime.json'),
-  intersectionsObject = require('../cache/intersectionsObject.json'),
+const cnnObject = require('./json/newCnnObject.json'),
+  intersectionsObject = require('./json/intersectionsObject.json'),
   latLngObject = require('../cache/latLngObject'),
   getLatLng = require('./getLatLng.js').convertIntersectionLatLng,
   PriorityQueue = require('./priorityQueue.js').PriorityQueue;
 
+
+
 //= =======================GRAB USER INPUT AND GETS CNN=======================================================
 async function userInput(origin, destination){
   //function userInput takes origin and destination intersections as string datatype, for example "1st st".  It formats those intersections to match the format found in DataSF Open Data (https://datasf.org/opendata/) and then returns a call to our A* search algorithm using the formatted string values.
-  let originCNN,
-    destinationCNN;
+    let originCNN,
+      destinationCNN,
+      originNode,
+      destinationNode;
 
+  let formattedInputArray = formatInputs(origin, destination);
   //change string format from "1st st, fell st" to "1ST ST,FELL ST" which is the format our data from DATASF is found.
-  origin = origin.split(', ').join(',').toUpperCase();
-  destination = destination.split(', ').join(',').toUpperCase();
+  origin = formattedInputArray[0];
+  origin2 = origin.slice().split(",").reverse().join(",");
+  destination = formattedInputArray[1];
+  destination2 = destination.slice().split(",").reverse().join(",");
+
+  console.log("this is origin: ", origin, " and this is destination: ", destination);
 
   // if (origin.indexOf('  \\ ') !== -1) {
   //   origin = fixSlashes(origin);
@@ -27,32 +36,36 @@ async function userInput(origin, destination){
 
   //The following control flow statements check for our origin and destination in our "intersectionsObject", which is a cache containing intersections in san francisco and their corresponding identification number(which we call CNN).  We use this CNN with our CNN object in order to find both the "originNode" containing our origin intersection and "destinationNode" containing our destination intersection.
 
-  if(intersectionsObject[origin] !== undefined){
-    originCNN = intersectionsObject[origin];
-
-  } else {
-
-    const intersection1 = origin.split(',')[0],
-      intersection2 = origin.split(',')[1],
-      intersection = `${intersection2},${intersection1}`;
-
-    originCNN =  intersectionsObject[intersection];
+  if(intersectionsObject[origin] !== undefined || intersectionsObject[origin2] !== undefined){
+    console.log("intersectionsObj[origin] is defined")
+    originCNN = intersectionsObject[origin] || intersectionsObject[origin2];
+    originNode = cnnObject[originCNN];
   }
+  // else {
+  //
+  //   const intersection1 = origin.split(',')[0],
+  //     intersection2 = origin.split(',')[1],
+  //     intersection = `${intersection2},${intersection1}`;
+  //
+  //   originCNN =  intersectionsObject[intersection];
+  //   originNode = cnnObject[originCNN],
+  //
+  // }
 
-  if(intersectionsObject[destination] !== undefined){
-    destinationCNN = intersectionsObject[destination];
-
-  } else {
-
-    const intersection1 = destination.split(',')[0],
-      intersection2 = destination.split(',')[1],
-      intersection = `${intersection2},${intersection1}`;
-
-    destinationCNN =  intersectionsObject[intersection];
-  }
-
-  const originNode = cnnObject[originCNN],
+  if(intersectionsObject[destination] !== undefined || intersectionsObject[destination2] !== undefined){
+    console.log("intersectionsObj[destination] is defined")
+    destinationCNN = intersectionsObject[destination] || intersectionsObject[destination2];
     destinationNode = cnnObject[destinationCNN];
+  }
+  // else {
+  //
+  //   const intersection1 = destination.split(',')[0],
+  //     intersection2 = destination.split(',')[1],
+  //     intersection = `${intersection2},${intersection1}`;
+  //
+  //   destinationCNN =  intersectionsObject[intersection];
+  // }
+
 
   //Now that we have our originNode and destinationNode, we do two things:
   //1. Find the GPS latitutde longitude location of our destination with which we will compute our heuristic to be used in the A* algorithm.
@@ -71,33 +84,54 @@ async function userInput(origin, destination){
 }
 //working
 // userInput(('BUSH ST,OCTAVIA ST'),('SUTTER ST,WEBSTER ST'));
-//56
+//2228
 // userInput(('CAPRA WAY,SCOTT ST'), ("FRANCISCO ST,BAKER ST"));
 //19
-userInput(('GROVE ST,BAKER ST'),('HAIGHT ST,DIVISADERO ST'));
-//33
+// userInput(('GROVE ST,BAKER ST'),('HAIGHT ST,DIVISADERO ST'));
+//36
 // userInput(('VALLEJO ST,LEAVENWORTH ST'),('HYDE ST,LOMBARD ST'));
-//519
-
-
+//NANNY
+// userInput(('FILBERT ST,BUCHANAN ST'),("FRANCISCO ST,BAKER ST"));
+// 427
+// userInput(('PINE ST,FILLMORE ST'),('WASHINGTON ST,FRANKLIN ST'));
+//940
+// userInput(('BRODERICK ST,OAK ST'),('haight st, divisadero st'));
+// 9
+// userInput(('PINE ST,FILLMORE ST'),('FRANCISCO ST,BAKER ST'));
+//606
+// userInput(('24th ST, Folsom St'),('19th ST, Kansas St'));
+//// 1390
+// userInput(('BUSH ST,OCTAVIA ST'),('CAPRA WAY,SCOTT ST'));
+//2143
+//userInput(('CLAYTON ST,FREDERICK ST'),('HAIGHT ST,Divisadero ST'));
+// 132
+// userInput(("28th st and noe st"),("polk st and lombard st"));
+// 4695
+userInput(('webster st and waller st'),('fillmore st and broadway st'))
+// 3044
 
 //not working
-// userInput(('FILBERT ST,BUCHANAN ST'),("FRANCISCO ST,BAKER ST"));
-// userInput(('PINE ST,FILLMORE ST'),('WASHINGTON ST,FRANKLIN ST'));
-// userInput(('CLAYTON ST,FREDERICK ST'),('HAIGHT ST,PAGE ST'));
-// userInput(('BRODERICK ST,OAK ST'),('haight st, divisadero st'));
 // userInput(('FRANCISCO ST,LARKIN ST'),('WEBSTER ST,BEACH ST'));
-// userInput((''),(''));
+// userInput(('Vallejo St, Steiner St'),('Church St, 15TH ST'));
+// userInput(('18th ST, NOE ST'),('17th ST,TEXAS ST'));
+
+// userInput(("polk st and lombard st"),("moraga st and 42nd ave"));
+// userInput(("28th st and noe st"),("moraga st and 42nd ave));
+// userInput(("24th st and GUERRERO st"),("vallejo st & leavenworth st"));
+// userInput(("divisadero st and JEFFERSON st"),("polk st and vallejo st"));
+
+
+
 
 //= =======================A STAR SEARCH=======================================================
 async function aStarSearch(sourceNode, destinationNode, destinationLatLng, destinationCNN) {
-  const frontier = new PriorityQueue(); // We're assuming such a class exists.
-  const explored = new Set();
-  const queueObj = {
-    node: sourceNode,
-    cost: 0,
-    path: [],
-  };
+  const frontier = new PriorityQueue(), // We're assuming such a class exists.
+    explored = new Set(),
+    queueObj = {
+      node: sourceNode,
+      cost: 0,
+      path: []
+    };
 
   frontier.enqueue(queueObj, queueObj.cost);
 
@@ -109,11 +143,12 @@ async function aStarSearch(sourceNode, destinationNode, destinationLatLng, desti
     console.log(frontier, " frontier");
 
     count++;
-    const currentQueueObj = frontier.dequeue();
-    const curNode = currentQueueObj.obj.node;
-    const curPath = currentQueueObj.obj.path;
-    const curCost = currentQueueObj.obj.cost;
-    const curCnn = currentQueueObj.obj.node.cnn;
+
+    const currentQueueObj = frontier.dequeue(),
+      curNode = currentQueueObj.obj.node,
+      curPath = currentQueueObj.obj.path,
+      curCost = currentQueueObj.obj.cost,
+      curCnn = currentQueueObj.obj.node.cnn;
 
     console.log("this is the cost of the current queueObj: ", curCost, " ", curNode);
 
@@ -126,7 +161,6 @@ async function aStarSearch(sourceNode, destinationNode, destinationLatLng, desti
     if (curCnn === destinationCNN) {
       curPath.push(curNode);
       console.log(curPath, ' we made it!!!!! ', count);
-
       return curPath;
     }
 
@@ -145,9 +179,11 @@ async function aStarSearch(sourceNode, destinationNode, destinationLatLng, desti
       newPath.push(curNode);
       try {
         var heuristicValue = await computeHeuristic(newNode, destinationLatLng, curNode);
+
         if(isNaN(heuristicValue)) {
           console.log(newNode, " this is newNode being nanny AF");
-          return
+          console.log("and this is count: ", count);
+          continue;
         }
       } catch (err) {
         console.log(err, 'this is the err in the try catch block');
@@ -170,9 +206,9 @@ async function aStarSearch(sourceNode, destinationNode, destinationLatLng, desti
 		// console.log(curNode.cnn)
     explored.add(curNode);
   }
-  console.log('not working, fix it');
+  console.log('Frontier.length === 0... we have run out of nodes to search.');
   console.log('this is count', count);
-  return 'not working, fix it';
+  return 'Frontier.length === 0... we have run out of nodes to search.';
 }
 
 //= =======================COMPUTES THE HEURISTIC=======================================================
@@ -190,11 +226,17 @@ function computeHeuristic(newNode, finalLatLong, curNode) {
   //Most of our intersections' coordinate pair locations will be contained within the latLngObject which is a CNN:coordinate pair cache.  If there is a match with the curNode's CNN in the latLngObject, we make a call to the latLngDistance function using this match.  The latLngDistance function returns the distance from the current intersection in question's location as a coordinate pair and the destination's location as a coordinate pair.  We use the distance returned from this function as our heuristic.
   if (latLngObject[cnn]) {
     let newNodeLatLong = latLngObject[cnn];
-    if(newNodeLatLong === "no address exsists") newNodeLatLong = latLngObject[curNode.cnn];
+    if(newNodeLatLong === "no address exsists"){
+      newNodeLatLong = latLngObject[curNode.cnn];
+      console.log("no address exists so we are fudging our distance a little bit by assigning the lat long of it's neighboring intersection")
+      if(!newNodeLatLong){
+        return 1;
+      }
+    }
     console.log(newNodeLatLong, " this is newNodelatlng, ", finalLatLong, " and this is finalLatlng");
     distance = latLngDistance(newNodeLatLong, finalLatLong);
     console.log("this is our distance coming from heuristic equation, ", distance)
-    return distance * 2;
+    return distance * 1.5;
   }
 
   console.log("this is the curr node intersection: ", newNodeIntersection)
@@ -211,7 +253,7 @@ function computeHeuristic(newNode, finalLatLong, curNode) {
 
   distance = latLngDistance(newNodeLatLong, finalLatLong);
   console.log("this is our distance coming from heuristic equation, ", distance)
-  return distance * 2;
+  return distance * 1,5;
 })
 		.catch((err) => {
   console.log(err, ' this is the error in computeHeuristic');
@@ -271,7 +313,8 @@ console.log(lat1, "this is lat1 ", lat2, " and this is lat2");
 }
 
 
-//= =======================REMOVES SLASHES FROM INTERSECTION======================================================
+//========================REMOVES SLASHES FROM INTERSECTION======================================================
+
 function fixSlashes(arr) {
   if (arr[0].indexOf(' \\ ') !== -1) {
     const newStreet = arr[0].split(' \\')[0];
@@ -279,4 +322,44 @@ function fixSlashes(arr) {
   }
   const newStreet2 = arr[1].split(' \\')[0];
   return `${arr[0]},${newStreet2}`;
+}
+/* =====================Format User Input to something the algorithm can work with ================================ */
+
+function formatInputs(origin, destination){
+	let formattedOrigin,
+		formattedDestination;
+
+	if(origin.indexOf("and") > -1){
+		formattedOrigin = origin.split("and");
+	}
+	if(origin.indexOf("&") > -1){
+		formattedOrigin = origin.split("&");
+	}
+
+  if(origin.indexOf(",") > -1){
+    formattedOrigin = origin.split(',');
+  }
+
+	if(destination.indexOf("and") > -1){
+		formattedDestination = destination.split("and");
+	}
+	if(destination.indexOf("&") > -1){
+		formattedDestination = destination.split("&");
+	}
+  if(destination.indexOf(",") > -1){
+    formattedDestination = destination.split(',');
+  }
+
+	return [ formattedOrigin.map((str) => str.trim().toUpperCase()).join(","), formattedDestination.map((str) => str.trim().toUpperCase()).join(",") ];
+};
+
+function formatOutput(pathOfNodes){
+	let outputArray = [];
+
+	for(let i = 0; i < pathOfNodes.length; i++){
+		let currentIntersection = pathOfNodes[i].intersection1;
+
+		outputArray.push(currentIntersection);
+	}
+	return outPutArray;
 }

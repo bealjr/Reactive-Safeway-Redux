@@ -1,4 +1,4 @@
-const streetData = require('../cache/streetDataSource.json').data;
+const streetData = require('../cache/streetDataSource2.json').data;
 const fs = require('fs');
 const graph = require('./graph').Graph;
 // const __apiKey__ = AIzaSyC9FPqo6Pdx4VjALRx5oeEDhfQvb-fkDjE
@@ -47,7 +47,7 @@ storeIntersectionObject(intersectionsGraph);
 function storeCnnObject(json) {
   const str = JSON.stringify(json);
     // console.log(str, ' this is the json str')
-  fs.writeFile('./json/cnnObject.json', str, (err) => {
+  fs.writeFile('./json/newCnnObject.json', str, (err) => {
     if (err) {
       return console.log(err);
     }
@@ -58,7 +58,7 @@ function storeCnnObject(json) {
 function storeIntersectionObject(json) {
   const str = JSON.stringify(json);
 
-  fs.writeFile('./json/intersectionsObject.json', str, (err) => {
+  fs.writeFile('./json/newIntersectionsObject.json', str, (err) => {
     if (err) {
       return console.log(err);
     }

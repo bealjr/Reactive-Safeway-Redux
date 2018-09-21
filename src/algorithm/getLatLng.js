@@ -66,7 +66,6 @@ function storeApiPreCheckObject(obj) {
 
 
 function convertIntersectionLatLng(intersectionArray) {
-    console.log("CONVERTING INTERSECTION")
   let firstStreet;
   let secondStreet;
 	// ["JAMESTOWN AVE","GILROY ST"],
@@ -88,13 +87,11 @@ function convertIntersectionLatLng(intersectionArray) {
     request(`https://maps.googleapis.com/maps/api/geocode/json?address=${firstStreet}+and+${secondStreet},+San+Francisco,+CA` + '&key=AIzaSyCx0LvEwPUgGhpLjCErr24dOnk-VWjo83g', (error, response, body) => {
       if (!error && response.statusCode == 200) {
         const parsed = JSON.parse(body);
-				console.log(parsed, "***THIS IS THE PARSED THING***");
 				// console.log(parsed, 'this is the results')
         if (parsed.status === 'ZERO_RESULTS') {
 					// console.log('the ' + intersectionArray + ' does not exisits')
           resolve('no address exsists');
         } else {
-					console.log('this intersction does exsisit ', parsed["results"][0]["geometry"]["location"])
           resolve(parsed.results[0].geometry.location);
         }
 				// console.log(parsed["results"][0], " parsed ASDFASDFASDF", intersectionArray, "Intersection Array")
