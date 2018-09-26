@@ -84,8 +84,8 @@ async function userInput(origin, destination){
 }
 //working
 // userInput(('BUSH ST,OCTAVIA ST'),('SUTTER ST,WEBSTER ST'));
-//2228
-// userInput(('CAPRA WAY,SCOTT ST'), ("FRANCISCO ST,BAKER ST"));
+//2279
+userInput(('CAPRA WAY,SCOTT ST'), ("FRANCISCO ST,BAKER ST"));
 //19
 // userInput(('GROVE ST,BAKER ST'),('HAIGHT ST,DIVISADERO ST'));
 //36
@@ -107,7 +107,7 @@ async function userInput(origin, destination){
 // 132
 // userInput(("28th st and noe st"),("polk st and lombard st"));
 // 4695
-userInput(('webster st and waller st'),('fillmore st and broadway st'))
+// userInput(('webster st and waller st'),('fillmore st and broadway st'))
 // 3044
 
 //not working
@@ -160,7 +160,8 @@ async function aStarSearch(sourceNode, destinationNode, destinationLatLng, desti
 		// Found a solution, return the path.
     if (curCnn === destinationCNN) {
       curPath.push(curNode);
-      console.log(curPath, ' we made it!!!!! ', count);
+      console.log(formatOutput(curPath), ' we made it!!!!! ', count);
+
       return curPath;
     }
 
@@ -353,13 +354,79 @@ function formatInputs(origin, destination){
 	return [ formattedOrigin.map((str) => str.trim().toUpperCase()).join(","), formattedDestination.map((str) => str.trim().toUpperCase()).join(",") ];
 };
 
-function formatOutput(pathOfNodes){
-	let outputArray = [];
+function formatOutput(output){
+	let outputArray = ["Start by walking to the intersection of " + makeProper(output[0].intersection1[0]) + " and " + makeProper(output[0].intersection1[1])+ "."],
 
-	for(let i = 0; i < pathOfNodes.length; i++){
-		let currentIntersection = pathOfNodes[i].intersection1;
+		currentStreet = findCS(output[0].intersection1, output[1].intersection1),
+    properCurrentStreet = makeProper(currentStreet),
 
-		outputArray.push(currentIntersection);
+		towardsStreet,
+    properTowardsStreet,
+
+		numberOfBlocks = 0,
+    firstDirectionGiven = false;
+
+
+	for(let i = 1; i < output.length; i++){
+
+		let currentIntersection = output[i].intersection1,
+		  previousIntersection = output[i-1].intersection1;
+
+
+		if(currentStreet === currentIntersection[0] || currentStreet === currentIntersection[1] || currentIntersection[0].indexOf(currentStreet) > -1 || currentIntersection[1].indexOf(currentStreet) > -1){
+			numberOfBlocks++;
+
+		} else {
+
+      if(!firstDirectionGiven){
+        towardsStreet = findTS(previousIntersection, currentStreet);
+        properTowardsStreet = makeProper(towardsStreet);
+
+        outputArray.push("Travel on " + properCurrentStreet + " for " + numberOfBlocks + " block(s) towards " + properTowardsStreet + ".");
+      }
+
+      // let nextIntersection = output[i+1].intersection1
+      if(firstDirectionGiven){
+        outputArray.push("Travel on " + properCurrentStreet + " for " + numberOfBlocks + " block(s).")
+      }
+
+      firstDirectionGiven = true;
+
+      currentStreet = findCS(currentIntersection, previousIntersection);
+			towardsStreet = findTS(currentIntersection, currentStreet);
+
+      properCurrentStreet = makeProper(currentStreet);
+      properTowardsStreet = makeProper(towardsStreet);
+
+      outputArray.push("Turn on " + properCurrentStreet + " towards " + properTowardsStreet + ".");
+
+      numberOfBlocks = 1;
+
+      if(i+1 === output.length) outputArray.push("Travel on " + properCurrentStreet + " for " + numberOfBlocks + " block.");
+		}
 	}
-	return outPutArray;
-}
+  if(numberOfBlocks > 1){
+    outputArray.push("Travel on " + properCurrentStreet + " for " + numberOfBlocks + " block(s).")
+  }
+  outputArray.push("You have arrived at your destination: " + makeProper(output[output.length - 1].intersection1[0]) + " at " + makeProper(output[output.length - 1].intersection1[1])+ ".");
+	return outputArray
+};
+
+function makeProper(street){
+    return street.split(" ").map((word) => {return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()}).join(" ");
+};
+
+function findCS(intersection1, intersection2){
+	if(intersection1[0] === intersection2[0] || intersection2[0].indexOf(intersection1[0]) > -1) return intersection1[0];
+	if(intersection1[0] === intersection2[1] || intersection2[1].indexOf(intersection1[0]) > -1) return intersection1[0];
+	if(intersection1[1] === intersection2[0] ||intersection2[0].indexOf(intersection1[1])) return intersection1[1];
+	if(intersection1[1] === intersection2[1] || intersection2[1].indexOf(intersection1[1]) > -1) return intersection1[1];
+};
+
+function findTS(intersection, currentStreet){
+	if(intersection[0] === currentStreet){
+    return intersection[1];
+  } else {
+    return intersection[0];
+  };
+};
