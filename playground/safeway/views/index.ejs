@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../javascripts/map.js"></script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCx0LvEwPUgGhpLjCErr24dOnk-VWjo83g&callback=initMap">
+    </script>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <div id="floating-panel">
+    <b>Start: </b>
+    <input id="start" type="text" name="Start"><br>
+    <b>End: </b>
+    <input id="end" type="text" name="End"><br>
+    <input id="submit" type="button" value="Submit">
+    </div>
+    <div id="map"></div>
+    &nbsp;
+    <div id="warnings-panel"></div>
+  </body>
+</html>
