@@ -1,4 +1,6 @@
-#Introduction
+# The Safeway
+
+**About**
 
 The Safeway is an app used to find safe walking directions through San Francisco's dangerous streets.
 
